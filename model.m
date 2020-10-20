@@ -1,8 +1,8 @@
-%Rotina para simulacao da din‚mica longitudinal do veÌculo. 
+%Rotina para simulacao da din√¢mica longitudinal do ve√≠culo. 
 
 %parametros constantes do veiculo e ambiente
 m = 220;%massa do veiculo + piloto
-zfix = 7.85; %relacao de transmiss„o do redutor fixo
+zfix = 7.85; %relacao de transmiss√£o do redutor fixo
 rp = 0.2921; %raio do pneu 
 ef = 0.865; %eficiencia da cvt nao contabilizada pelo coastdown
 h = 0.525; %altura do CG em relacao ao solo 
@@ -12,7 +12,7 @@ tetagraus = 10;%angulo da rampa (graus)
 teta = tetagraus*(pi/180);
 isaida = 1.9353; %inercia rotacional saida do redutor fixo 
                  % 4 rodas/discos de freio/semieixos/
-isaida = isaida/2; %dividindo pois o total È referente ‡s 4 rodas
+isaida = isaida/2; %dividindo pois o total √© referente √†s 4 rodas
 
 imotora = 0.0025; %inercia rotacional polia motora
 ientrada = 0.0055; %inercia rotacional polia movida/entrada do redutor fixo
@@ -25,7 +25,7 @@ tn = 15; %tempo final
 dt = 0.01; %incremento de tempo
 tempo = t1:dt:tn; %vetor tempo
 
-%relacao de transmiss„o da CVT
+%relacao de transmiss√£o da CVT
 zcvtparainterp = cvt';
 zcvt = interp1(rotrefparainterp,zcvtparainterp2,rotref,'spline');
 
@@ -47,31 +47,31 @@ Tmotor = interp1(rotrefparainterp,Torque,rotref,'spline'); %torque do motor
 %parametros iniciais do veiculo
 aveiculo = 0; %aceleracao do veiculo (inicial)
 vveiculoini = 0; %velocidade inicial do veiculo
-sveiculoini = 0; %espaÁo inicial
+sveiculoini = 0; %espa√ßo inicial
 rotmotor = 2200; %rotacao do motor (RPM)
 
-%forÁas normais nas rodas Dianteira e Traseira
+%for√ßas normais nas rodas Dianteira e Traseira
 FzD = (-m*aveiculo*h-m*9.81*h*sin(teta)+m*9.81*lt*cos(teta))/(lt+ld);
 FzT = (m*aveiculo*h+m*9.81*h*sin(teta)+m*9.81*ld*cos(teta))/(lt+ld);
 
-%forÁa trativa inicial
+%for√ßa trativa inicial
 Fx = 0;
 
 %rotacao  inicial da roda traseira
 rotrodaini = (rotmotor/(zfix*interp1(rotref,zcvt,rotmotor,'nearest')))*((2*pi)/60);%rad/s
 
-%inicio do laÁo de repetiÁ„o
+%inicio do la√ßo de repeti√ß√£o
 for t = 1:length(tempo)
  
-  %Motor & transmiss„o
-    if rotmotor>4100 %caso rotacao do motor >4100 torque È zero
+  %Motor & transmiss√£o
+    if rotmotor>4100 %caso rotacao do motor >4100 torque √© zero
         
         %torque na roda traseira
         Troda = 0;
         %inercia rotacional equivalente no eixo da motora 
         Imoteq = imotora*(zcvt(length(zcvt)).*zfix)^2;
         
-    elseif rotmotor<1620 %caso rotacao do motor <1620 torque È zero
+    elseif rotmotor<1620 %caso rotacao do motor <1620 torque √© zero
         
         %torque na roda traseira
         Troda = 0;
@@ -86,15 +86,15 @@ for t = 1:length(tempo)
         Imoteq = imotora*(interp1(rotref,zcvt,rotmotor,'nearest')*zfix)^2;
     end
     
-    %inercia rotacional no eixo de entrada do redutor fixo em relaÁ„o ‡ ao
+    %inercia rotacional no eixo de entrada do redutor fixo em rela√ß√£o √† ao
     Ientradaeq = ientrada*((zfix)^2); 
-    Isaidaeq = isaida; %rodas traseiras+semieixos+eixo de saÌda do redutor+disco de freio etc
+    Isaidaeq = isaida; %rodas traseiras+semieixos+eixo de sa√≠da do redutor+disco de freio etc
     Ieq = Imoteq+Ientradaeq+Isaidaeq; %inercia rotacional total equivalente
 
     
     
   %sistema roda
-    %torque resistivo (resistÍncia a rolagem + fricÁ„o) na roda traseira
+    %torque resistivo (resist√™ncia a rolagem + fric√ß√£o) na roda traseira
     Tres = rp*(m*0.0029.*vveiculoini.*3.6 + ((FzT*0.41)/9.81)); %Nm 
     
      if Tres < 0
@@ -114,47 +114,47 @@ for t = 1:length(tempo)
     end
   
     
-  %forÁa trativa  
-    %coeficiente de ades„o
+  %for√ßa trativa  
+    %coeficiente de ades√£o
     
-    %formula m·gica de pacejka
+    %formula m√°gica de pacejka
     %x = slip+shx
     %yx = (D*sin(C*atan(B*x-E*(B*x-atan(B*x)))));
     %tracf = yx + svx
     %mi = tracf/Fz
     
     %dados obtidos pelo artigo
-    %D = 1.2377*(0.640353+0.261665*exp(-0.080955*slip*3.6*(vveiculoini+0.1)))*1177.2; %asfalto seco
-    D = 1.2377*(0.590189-0.185632*exp(-0.192696*slip*3.6*(vveiculoini+0.1)))*1177.2; %terra batida seca
+    D = 1.2377*(0.640353+0.261665*exp(-0.080955*slip*3.6*(vveiculoini+0.1)))*1177.2; %asfalto seco
+    %D = 1.2377*(0.590189-0.185632*exp(-0.192696*slip*3.6*(vveiculoini+0.1)))*1177.2; %terra batida seca
     x = slip-0.0037;
     mi = ((D*sin(1.3971*atan(20.0573*(x)-(-1.3078)*(20.0573*(x)-atan(20.0573*(x)))))) + 92.5868)/1177.2;
    
     if abs(Troda-Tres) < mi*FzT*rp
-        Fx = abs((Troda-Tres)/rp); %forÁa trativa
+        Fx = abs((Troda-Tres)/rp); %for√ßa trativa
     else
-        Fx = mi*FzT; %forÁa trativa
+        Fx = mi*FzT; %for√ßa trativa
     end
        
   %veiculo
     if vveiculoini < 0
-        Faero = m*(2.38*10^(-4).*(3.6.*vveiculoini).^2); %forÁa de arrasto
-        Ffricloss = m*0.0029.*vveiculoini.*3.6; %perdas na transmiss„o por fricÁ„o
+        Faero = m*(2.38*10^(-4).*(3.6.*vveiculoini).^2); %for√ßa de arrasto
+        Ffricloss = m*0.0029.*vveiculoini.*3.6; %perdas na transmiss√£o por fric√ß√£o
         Frollres = 0.41*((FzD+FzT)/9.81); %resistencia a rolagem
-        Fres = Faero+Ffricloss+Frollres; %forÁa resistiva
+        Fres = Faero+Ffricloss+Frollres; %for√ßa resistiva
         Fres = -Fres; %muda sentido pois velocidade < 0
     else
-        Faero = m*(2.38*10^(-4).*(3.6.*vveiculoini).^2); %forÁa de arrasto
-        Ffricloss = m*0.0029.*vveiculoini.*3.6; %perdas na transmiss„o por fricÁ„o
+        Faero = m*(2.38*10^(-4).*(3.6.*vveiculoini).^2); %for√ßa de arrasto
+        Ffricloss = m*0.0029.*vveiculoini.*3.6; %perdas na transmiss√£o por fric√ß√£o
         Frollres = 0.41*((FzD+FzT)/9.81); %resistencia a rolagem
-        Fres = Faero+Ffricloss+Frollres; %forÁa resistiva 
+        Fres = Faero+Ffricloss+Frollres; %for√ßa resistiva 
     end
-        aveiculo = (Fx-Fres-m*9.81*sin(teta))/m; %aceleraÁ„o do veÌculo
+        aveiculo = (Fx-Fres-m*9.81*sin(teta))/m; %acelera√ß√£o do ve√≠culo
         
         %velocidade
         vveiculo = vveiculoini + aveiculo*dt;
         vveiculoini = vveiculo;
         
-        %espaÁo percorrido
+        %espa√ßo percorrido
         sveiculo = sveiculoini + vveiculo*dt;
         sveiculoini = sveiculo;
         
@@ -169,15 +169,15 @@ for t = 1:length(tempo)
   %atualizacao da rotacao do motor
     rotrodafinRPM = rotrodafin*(60/(2*pi)); %rotacao da roda em RPM
 
-    if rotrodafinRPM>rotmotor/(zcvt(length(zcvt))*zfix) %limitaÁ„o da relaÁ„o CVT m·xima
-        %rotaÁ„o do motor
+    if rotrodafinRPM>rotmotor/(zcvt(length(zcvt))*zfix) %limita√ß√£o da rela√ß√£o CVT m√°xima
+        %rota√ß√£o do motor
         rotmotor = rotrodafinRPM*(zcvt(length(zcvt))*zfix);
         
-    elseif rotrodaTfinRPM<rotmotor/(zcvt(1)*zfix) %limitaÁ„o da relaÁ„o CVT 
+    elseif rotrodaTfinRPM<rotmotor/(zcvt(1)*zfix) %limita√ß√£o da rela√ß√£o CVT 
         rotmotor = rotrodafinRPM*(zcvt(1)*zfix);
         
     else
-    %rotaÁ„o do motor
+    %rota√ß√£o do motor
     rotmotor = interp1(rotrodaref,rotref,rotrodafinRPM,'nearest'); 
     
     end
@@ -198,12 +198,12 @@ tempo30mplot = max(tempo((sveiculoplot<=30)))
 velocidade100m = 3.6*min(vveiculoplot(sveiculoplot>=100))
 
 
-%plot dos gr·ficos
-  subplot(2,2,1);plot(temporeal,vveiculoreal,tempo,3.6*vveiculoplot);title('Velocidade do veÌculo');ylabel('Velocidade (km/h)');xlabel('Tempo (s)');legend({'Real','TeÛrico'},'Location','southeast');xlim([0 10])
-  subplot(2,2,2);plot(temporeal,sveiculoreal,tempo,sveiculoplot);title('Dist‚ncia percorrida pelo veÌculo');ylabel('Dist‚ncia (m)');xlabel('Tempo (s)');legend({'Real','TeÛrico'},'Location','southeast');xlim([0 10])
+%plot dos gr√°ficos
+  subplot(2,2,1);plot(temporeal,vveiculoreal,tempo,3.6*vveiculoplot);title('Velocidade do ve√≠culo');ylabel('Velocidade (km/h)');xlabel('Tempo (s)');legend({'Real','Te√≥rico'},'Location','southeast');xlim([0 10])
+  subplot(2,2,2);plot(temporeal,sveiculoreal,tempo,sveiculoplot);title('Dist√¢ncia percorrida pelo ve√≠culo');ylabel('Dist√¢ncia (m)');xlabel('Tempo (s)');legend({'Real','Te√≥rico'},'Location','southeast');xlim([0 10])
   % subplot(1,2,3);plot(tempo,slipplot);;title('Deslizamento ao longo do tempo');ylabel('Slip ratio');xlabel('Tempo (s)');
  
-%  subplot(3,2,4);plot(tempo,aveiculoplot);title('AceleraÁ„o do veÌculo');ylabel('AceleraÁao (m/s≤)');xlabel('Tempo (s)');
+%  subplot(3,2,4);plot(tempo,aveiculoplot);title('Acelera√ß√£o do ve√≠culo');ylabel('Acelera√ßao (m/s¬≤)');xlabel('Tempo (s)');
 %  
 % 
 %     
